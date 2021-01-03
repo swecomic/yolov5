@@ -186,7 +186,7 @@ def test(data,
             stats.append((correct.cpu(), pred[:, 4].cpu(), pred[:, 5].cpu(), tcls))
 
         # Plot images
-        if batch_i < 1:
+        if batch_i < 10:
             f = Path(save_dir) / ('test_batch%g_gt.jpg' % batch_i)  # filename
             plot_images(img, targets, paths, str(f), names)  # ground truth
             f = Path(save_dir) / ('test_batch%g_pred.jpg' % batch_i)
@@ -218,7 +218,7 @@ def test(data,
 
     # Save JSON
     if save_json and len(jdict):
-        f = 'detections_val2017_%s_results.json' % \
+        f = '%s_results.json' % \
             (weights.split(os.sep)[-1].replace('.pt', '') if isinstance(weights, str) else '')  # filename
         print('\nCOCO mAP with pycocotools... saving %s...' % f)
         with open(f, 'w') as file:
@@ -250,13 +250,13 @@ def test(data,
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='eval.py')
-    parser.add_argument('--weights', nargs='+', type=str, default='yolov5s.pt', help='model.pt path(s)')
-    parser.add_argument('--data', type=str, default='data/coco128.yaml', help='*.data path')
+    parser.add_argument('--weights', nargs='+', type=str, default='runs/exp26/weights/best.pt', help='model.pt path(s)')
+    parser.add_argument('--data', type=str, default='data/coco.yaml', help='*.data path')
     parser.add_argument('--batch-size', type=int, default=32, help='size of each image batch')
     parser.add_argument('--img-size', type=int, default=640, help='inference size (pixels)')
     parser.add_argument('--conf-thres', type=float, default=0.001, help='object confidence threshold')
-    parser.add_argument('--iou-thres', type=float, default=0.65, help='IOU threshold for NMS')
-    parser.add_argument('--save-json', action='store_true', help='save a cocoapi-compatible JSON results file')
+    parser.add_argument('--iou-thres', type=float, default=0.6, help='IOU threshold for NMS')
+    # parser.add_argument('--save-json', action='store_true', help='save a cocoapi-compatible JSON results file')
     parser.add_argument('--task', default='val', help="'val', 'test', 'study'")
     parser.add_argument('--device', default='', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
     parser.add_argument('--single-cls', action='store_true', help='treat as single-class dataset')
@@ -264,8 +264,11 @@ if __name__ == '__main__':
     parser.add_argument('--merge', action='store_true', help='use Merge NMS')
     parser.add_argument('--verbose', action='store_true', help='report mAP by class')
     parser.add_argument('--save-txt', action='store_true', help='save results to *.txt')
-    opt = parser.parse_args()
-    opt.save_json |= opt.data.endswith('coco.yaml')
+    opt, unknown = parser.parse_known_args()
+    # opt.save_json |= opt.data.endswith('coco.yaml')
+    opt.save_json = False
+    opt.verbose = True
+
     opt.data = check_file(opt.data)  # check file
     print(opt)
 

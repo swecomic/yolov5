@@ -80,7 +80,7 @@ def train(hyp, opt, device, tb_writer=None):
         model = Model(opt.cfg, ch=3, nc=nc).to(device)  # create
 
     # Freeze
-    freeze = ['', ]  # parameter names to freeze (full or partial)
+    freeze = ['model.%s.' % x for x in range(5)]  # parameter names to freeze (full or partial)
     if any(freeze):
         for k, v in model.named_parameters():
             if any(x in k for x in freeze):
@@ -256,7 +256,7 @@ def train(hyp, opt, device, tb_writer=None):
 
             # Multi-scale
             if opt.multi_scale:
-                sz = random.randrange(imgsz * 0.5, imgsz * 1.5 + gs) // gs * gs  # size
+                sz = random.randrange(imgsz * 0.8, imgsz * 1.2 + gs) // gs * gs  # size
                 sf = sz / max(imgs.shape[2:])  # scale factor
                 if sf != 1:
                     ns = [math.ceil(x * sf / gs) * gs for x in imgs.shape[2:]]  # new shape (stretched to gs-multiple)
@@ -379,8 +379,7 @@ def train(hyp, opt, device, tb_writer=None):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    # parser.add_argument('--weights', type=str, default='yolov5s.pt', help='initial weights path')
-    parser.add_argument('--weights', type=str, default='', help='initial weights path')
+    parser.add_argument('--weights', type=str, default='yolov5m.pt', help='initial weights path')
     parser.add_argument('--cfg', type=str, default='models/yolov5m.yaml', help='model.yaml path')
     parser.add_argument('--data', type=str, default='data/coco.yaml', help='data.yaml path')
     parser.add_argument('--hyp', type=str, default='data/hyp.scratch.yaml', help='hyperparameters path')
@@ -434,7 +433,7 @@ if __name__ == '__main__':
 
     device = select_device(opt.device, batch_size=opt.batch_size)
 
-    # DDP mode
+    # DDP model
     if opt.local_rank != -1:
         assert torch.cuda.device_count() > opt.local_rank
         torch.cuda.set_device(opt.local_rank)
